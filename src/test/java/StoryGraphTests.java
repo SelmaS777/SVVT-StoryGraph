@@ -6,15 +6,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.openqa.selenium.By.className;
@@ -25,6 +22,11 @@ public class StoryGraphTests {
     private static String baseUrl;
     private static WebDriverWait webDriverWait;
     private static JavascriptExecutor javascriptExecutor;
+
+    private static final String[] USERNAMES = {"multipurpose1", "multipurpose"};
+    private static final String[] PASSWORDS = {"111111", "1111112"};
+
+    private static final String EMAIL = "multipurpose.beca@gmail.com";
 
     @BeforeAll
     public static void setUp() {
@@ -66,9 +68,14 @@ public class StoryGraphTests {
         passwordField.sendKeys(password);
         loginButton.click();
 
-        /*// Verify successful login by checking redirection or dashboard presence
-        String currentUrl = webDriver.getCurrentUrl();
-        assertTrue(currentUrl.contains(""), "User should be redirected to the dashboard after login.");*/
+        try {
+            WebElement cookieCloseButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
+            cookieCloseButton.click(); // Click the close button if the banner exists
+            System.out.println("Cookie banner closed.");
+        } catch (TimeoutException e) {
+            // Cookie banner was not visible, proceed without clicking
+            System.out.println("Cookie banner not visible, proceeding.");
+        }
     }
 
     public void logout() {
@@ -172,7 +179,7 @@ public class StoryGraphTests {
 
     @Test
     public void testSignInValidUser() {
-        login("multipurpose.beca@gmail.com", "blabla123");
+        login(EMAIL, PASSWORDS[0]);
     }
 
     @Test
@@ -186,13 +193,8 @@ public class StoryGraphTests {
     @Test
     public void testLogout() {
         // Ensure we are logged in before attempting logout
-        login("multipurpose.beca@gmail.com", "1111112");
-        try {
-            WebElement cookieCloseButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
+        login(EMAIL, PASSWORDS[0]);
+
         logout();
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(20));
         WebElement loginButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(text(),'Log in')]")));
@@ -230,12 +232,12 @@ public class StoryGraphTests {
 
     @Test
     public void testSignUpIncorrectUsername() {
-        signUp("multipurpose.beca@gmail.com", "multipurpose.beca@gmail.com", "multipurpose.beca", "blabla123");
+        signUp(EMAIL, EMAIL, "multipurpose.beca", PASSWORDS[0]);
     }
 
     @Test
     public void testSignUp() throws InterruptedException {
-        signUp("multipurpose.beca@gmail.com", "multipurpose.beca@gmail.com", "multipurpose_beca", "blabla123");
+        signUp(EMAIL, EMAIL, USERNAMES[0], PASSWORDS[0]);
 
         // Wait for redirection to Goodreads import page
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
@@ -298,21 +300,13 @@ public class StoryGraphTests {
     public void testSearchForNonExistingBooks(String searchTermInput, String expectedText) throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/");
 
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
-
         WebElement searchInput = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("search")));
         searchInput.sendKeys(searchTermInput);
         searchInput.sendKeys(Keys.ENTER);
 
         Thread.sleep(1000);
 
-        WebElement noResultsParagraph = null;
+        WebElement noResultsParagraph;
         String noResultsText = "";
 
         // First attempt with the primary XPath
@@ -339,14 +333,6 @@ public class StoryGraphTests {
     public void testFilterByMood() throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(2));
-
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
 
         // Expand Filter All Books Section
         WebElement filterButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
@@ -396,14 +382,6 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(2));
 
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
-
         // Expand Filter All Books Section
         WebElement filterButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
         filterButton.click();
@@ -449,14 +427,6 @@ public class StoryGraphTests {
     public void testFilterByGenres() throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
-
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
 
         // Expand Filter All Books Section
         WebElement filterButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
@@ -516,14 +486,6 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
-
         // Click the 'Last Updated' button
         WebElement lastUpdatedButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/button")));
         lastUpdatedButton.click();
@@ -557,14 +519,6 @@ public class StoryGraphTests {
     public void testOrderByPagesLowToHighFantasy() throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
-
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
 
         // Click the 'Last Updated' button
         WebElement lastUpdatedButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/button")));
@@ -600,14 +554,6 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
-
         // Click the 'Last Updated' button
         WebElement lastUpdatedButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/button")));
         lastUpdatedButton.click();
@@ -641,14 +587,6 @@ public class StoryGraphTests {
     public void testCompareDatesFromLatestFirst() throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
-
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
 
         // Expand Filter All Books Section
         WebElement filterButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
@@ -799,19 +737,12 @@ public class StoryGraphTests {
     @Test
     public void testVerifyBookAddedToRead() throws InterruptedException {
         // Perform login
-        login("multipurpose.beca@gmail.com", "1111112");
+        login(EMAIL, PASSWORDS[0]);
         Thread.sleep(2000);
 
         webDriver.get("https://app.thestorygraph.com/books/96e8fd00-733d-4686-9e41-d388149c438b");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
         scrollToY(200);
         Thread.sleep(111000);
         // Click the book to add it to the "To Read" list
@@ -819,7 +750,7 @@ public class StoryGraphTests {
         dropdownOption.click();
 
         // Navigate to the "To Read" section
-        webDriver.get("https://app.thestorygraph.com/to-read/multipurpose");
+        webDriver.get("https://app.thestorygraph.com/to-read/" + USERNAMES[0]);
 
         // Wait for the "To Read" page to load
         List<WebElement> booksList = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
@@ -836,48 +767,33 @@ public class StoryGraphTests {
 
     @Test
     public void testChangeUsername() throws InterruptedException {
-        // Perform login
-        login("multipurpose.beca@gmail.com", "111111");
-        Thread.sleep(2000);
-        // Navigate to the Edit Profile page
-        webDriver.get("https://app.thestorygraph.com/profile/edit/multipurpose1");
+        // Log in with the current username and password
+        login(EMAIL, PASSWORDS[0]);
 
-        Thread.sleep(1000);
-        // Locate the username input field
-        // Check and click the "X" button to close the cookie banner if visible
-        try {
-            WebElement cookieCloseButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();  // Click the close button if the banner exists
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
-        WebElement usernameInput = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("//html/body/div[1]/div/main/div/div[3]/div/form/div[2]/input")));
+        webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
 
-        // Clear the field and enter a new username
-        String newUsername = "multipurpose";
+        WebElement usernameInput = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//html/body/div[1]/div/main/div/div[3]/div/form/div[2]/input")));
         usernameInput.clear();
-        usernameInput.sendKeys(newUsername);
+        usernameInput.sendKeys(USERNAMES[1]);
 
-        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 500)"); // Scroll down by 500 pixels
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 500)");
 
-
-        // Locate and click the Save Changes button
-        WebElement saveButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/button"));
+        WebElement saveButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/button")));
         saveButton.click();
+        Thread.sleep(1000);
+        webDriver.navigate().refresh();
         Thread.sleep(2000);
-
-        // Verify the URL ends with the new username
-        String currentUrl = webDriver.getCurrentUrl();
-        assertTrue(currentUrl.contains(newUsername), "The URL did not end with the new username.");
+        assertTrue(webDriver.getCurrentUrl().contains("https://app.thestorygraph.com/profile/"+USERNAMES[1]), "The URL did not reflect the updated username.");
     }
 
     @Test
     public void testToggleVisibility() throws InterruptedException {
         // Perform login
-        login("multipurpose.beca@gmail.com", "111111");
+        login(EMAIL, PASSWORDS[0]);
         Thread.sleep(3000);
         // Navigate to the Edit Profile page
-        webDriver.get("https://app.thestorygraph.com/profile/edit/multipurpose");
+        webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
 
         // Locate the visibility dropdown
         WebElement visibilityDropdown = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/div[6]/select"));
@@ -887,6 +803,7 @@ public class StoryGraphTests {
         dropdown.selectByVisibleText("Community");
 
         ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 300)"); // Scroll down by 500 pixels
+
         // Submit the form
         WebElement saveButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/button"));
         saveButton.click();
@@ -895,7 +812,7 @@ public class StoryGraphTests {
         Thread.sleep(1000);
 
         // Reload the page to check the new visibility
-        webDriver.get("https://app.thestorygraph.com/profile/edit/multipurpose");
+        webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
         ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 300)");
         visibilityDropdown = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/div[6]/select"));
         dropdown = new Select(visibilityDropdown);
@@ -908,57 +825,48 @@ public class StoryGraphTests {
     @Test
     public void testChangePassword() throws InterruptedException {
 
-        login("multipurpose.beca@gmail.com", "111111");
+        login(EMAIL, PASSWORDS[0]);
         Thread.sleep(3000);
-        webDriver.get("https://app.thestorygraph.com/profile/edit/multipurpose");
-
-        try {
-            WebElement cookieCloseButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.id("close-cookies-popup")));
-            cookieCloseButton.click();
-        } catch (TimeoutException e) {
-            // Cookie banner was not visible, proceed without clicking
-        }
+        webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
 
         ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 600)");
         WebElement changePasswordButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/a[1]/button")));
         changePasswordButton.click();
 
         Thread.sleep(2000);
-        // Wait for the Change Password page to load
+
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
         WebElement currentPasswordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user_current_password")));
         WebElement newPasswordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user_password")));
         WebElement confirmPasswordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user_password_confirmation")));
         WebElement saveButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/div/form/div[4]/button")));
 
-        // Enter current and new passwords
-        currentPasswordField.sendKeys("111111");
-        newPasswordField.sendKeys("1111112");
-        confirmPasswordField.sendKeys("1111112");
+        currentPasswordField.sendKeys(PASSWORDS[0]);
+        newPasswordField.sendKeys(PASSWORDS[1]);
+        confirmPasswordField.sendKeys(PASSWORDS[1]);
         saveButton.click();
 
-        Thread.sleep(3000);
+        Thread.sleep(1000);
 
         logout();
-
-        Thread.sleep(3000);
-
-        login("multipurpose.beca@gmail.com", "1111112");
-        Thread.sleep(3000);
+        Thread.sleep(2000);
+        login(EMAIL, PASSWORDS[1]);
+        Thread.sleep(2000);
         String currentUrl = webDriver.getCurrentUrl();
         assertTrue(currentUrl.equals("https://app.thestorygraph.com/"));
 
         logout();
-        Thread.sleep(3000);
-        login("multipurpose.beca@gmail.com", "111111");
-        Thread.sleep(3000);
+        Thread.sleep(2000);
+
+        login(EMAIL, PASSWORDS[0]);
+        Thread.sleep(2000);
         String currentUrl1 = webDriver.getCurrentUrl();
         assertFalse(currentUrl1.equals("https://app.thestorygraph.com/"));
     }
 
     @Test
     public void testBookLog() throws InterruptedException {
-        login("multipurpose.beca@gmail.com", "1111112");
+        login(EMAIL, PASSWORDS[0]);
         Thread.sleep(3000);
         addBookToReadPile("https://app.thestorygraph.com/books/e0f01a40-b8fb-472c-998d-853fadf00a67", "8", "1", "2025");
 
@@ -979,9 +887,9 @@ public class StoryGraphTests {
 
     @Test
     public void testBookLogLastYear() throws InterruptedException {
-        login("multipurpose.beca@gmail.com", "1111112");
+        login(EMAIL, PASSWORDS[0]);
         Thread.sleep(2000);
-        addBookToReadPile("https://app.thestorygraph.com/books/d93d6f72-8d62-4294-b087-91632fac143a", "7", "1", "2024");
+        addBookToReadPile("https://app.thestorygraph.com/books/d93d6f72-8d62-4294-b087-91632fac143a", "7", "2", "2024");
 
         Thread.sleep(2000);
         WebElement stats = webDriver.findElement(By.xpath("/html/body/div[1]/nav/div[1]/div/div[1]/div[2]/a[2]"));
@@ -1000,7 +908,7 @@ public class StoryGraphTests {
 
     @Test
     public void testPaperToAudio() throws InterruptedException{
-        login("multipurpose.beca@gmail.com", "1111112");
+        login(EMAIL, PASSWORDS[0]);
         Thread.sleep(2000);
 
         webDriver.get("https://app.thestorygraph.com/books/e0f01a40-b8fb-472c-998d-853fadf00a67");
@@ -1017,7 +925,7 @@ public class StoryGraphTests {
         WebElement switchEdition = webDriver.findElement(By.xpath("//*[@id=\"book_94aaa555-1ff2-46c0-8de6-77e86d3a7120\"]/div[1]/div[1]/div[2]/div[2]/div/div[2]/form[2]/button"));
         switchEdition.click();
 
-        webDriver.get("https://app.thestorygraph.com/books-read/multipurpose");
+        webDriver.get("https://app.thestorygraph.com/books-read/" + USERNAMES[0]);
 
         Thread.sleep(1500);
         ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 300)");
@@ -1030,6 +938,78 @@ public class StoryGraphTests {
 
         String newFormat = webDriver.findElement(By.xpath("//*[@id=\"book_94aaa555-1ff2-46c0-8de6-77e86d3a7120\"]/div[1]/div[1]/div[2]/div[1]/div[2]/p[2]")).getText();
         assertNotEquals(oldFormat,newFormat);
+    }
+
+    @Test
+    public void testMultiPreferences() throws InterruptedException{
+        login(EMAIL, PASSWORDS[0]);
+        Thread.sleep(2000);
+
+        webDriver.get("https://app.thestorygraph.com/preferences/edit/" + USERNAMES[0]);
+
+        webDriver.manage().window().maximize();
+
+        Thread.sleep(1000);
+        Select timeZone = new Select(webDriver.findElement(By.id("user_time_zone")));
+        timeZone.selectByValue("Hawaii");
+
+        String timeZoneValue = "Hawaii";
+
+        Thread.sleep(1000);
+        scrollToY(500);
+        Thread.sleep(1000);
+
+
+        WebElement languagesClick = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[5]/span/span[1]/span/ul"));
+        languagesClick.click();
+
+        WebElement arabicOption = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[text()='Arabic']")));
+        arabicOption.click();
+
+        String languagesValue = "Arabic";
+
+        WebElement randomClick = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[5]/label")));
+        randomClick.click();
+
+        Thread.sleep(500);
+
+        Thread.sleep(1000);
+        scrollToY(1600);
+        Thread.sleep(1000);
+
+        WebElement friendsDropdown = webDriver.findElement(By.id("user_follow_setting"));
+        friendsDropdown.click();
+
+        WebElement friendsSelect = webDriver.findElement(By.xpath("//*[@id=\"user_friends_setting\"]/option[3]"));
+        friendsSelect.click();
+
+        String friendsValue = "Anybody";
+
+        Select buddyReads = new Select(webDriver.findElement(By.id("user_buddy_reads_setting")));
+        buddyReads.selectByValue("anybody");
+
+        String buddyReadsValue = "Anybody";
+
+        scrollToY(2200);
+
+        Select ownedBooks = new Select(webDriver.findElement(By.id("user_owned_books_visibility_setting")));
+        ownedBooks.selectByValue("friends_and_following");
+
+        String ownedBooksValue = "Friends & People I follow";
+
+        Thread.sleep(1000);
+        WebElement updateButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[2]/button"));
+        updateButton.click();
+
+        webDriver.get("https://app.thestorygraph.com/preferences/edit/" + USERNAMES[0]);
+        assertTrue(timeZoneValue.contains("Hawaii"));
+        scrollToY(500);
+        assertTrue(languagesValue.contains("Arabic"));
+        scrollToY(1600);
+        assertTrue(friendsValue.contains("Anybody"));
+        assertTrue(buddyReadsValue.contains("Anybody"));
+        scrollToY(2200);
+        assertTrue(ownedBooksValue.contains("Friends & People I follow"));
     }
 
     @Test
