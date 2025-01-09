@@ -27,6 +27,7 @@ public class StoryGraphTests {
     private static final String[] PASSWORDS = {"111111", "1111112"};
 
     private static final String EMAIL = "multipurpose.beca@gmail.com";
+    private static final String[] MODES = {"Dark", "Light"};
 
     @BeforeAll
     public static void setUp() {
@@ -145,10 +146,6 @@ public class StoryGraphTests {
         Thread.sleep(1500);
 
         selectDate(day, month, year);
-        Thread.sleep(200);
-        // Update
-        //WebElement submitButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[4]/div/div[3]/div/div[1]/div[1]/div[2]/form/input[5]")));
-        //submitButton.click();
         Thread.sleep(200);
     }
 
@@ -484,102 +481,81 @@ public class StoryGraphTests {
     @Test
     public void testOrderByPagesHighToLow() throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
-        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Click the 'Last Updated' button
         WebElement lastUpdatedButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/button")));
         lastUpdatedButton.click();
 
-        // Select the third option from the dropdown
         WebElement dropdownOption = webDriverWait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/div/input[3]")));
         dropdownOption.click();
 
-        // Wait for the sorting to take effect
         Thread.sleep(3000);
 
-        // Get the values from the specified XPath locations
         WebElement firstResultElement = webDriverWait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[1]/div[1]/div[2]/div[2]/div[1]/p")));
         WebElement secondResultElement = webDriverWait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[2]/div[1]/div[2]/div[2]/div[1]/p")));
 
-        // Extract and parse the integer values from the text
         int firstValue = Integer.parseInt(firstResultElement.getText().split(" ")[0]);
         int secondValue = Integer.parseInt(secondResultElement.getText().split(" ")[0]);
 
         System.out.println("First value: " + firstValue);
         System.out.println("Second value: " + secondValue);
 
-        // Assert that the first value is greater than or equal to the second value
         assertTrue(firstValue >= secondValue, "Results should be sorted by 'Last Updated' in descending order");
     }
 
     @Test
     public void testOrderByPagesLowToHighFantasy() throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
-        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Click the 'Last Updated' button
         WebElement lastUpdatedButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/button")));
         lastUpdatedButton.click();
 
-        // Select the third option from the dropdown
         WebElement dropdownOption = webDriverWait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/div/input[3]")));
         dropdownOption.click();
 
-        // Wait for the sorting to take effect
         Thread.sleep(3000);
 
-        // Get the values from the specified XPath locations
         WebElement firstResultElement = webDriverWait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[1]/div[1]/div[2]/div[2]/div[1]/p")));
         WebElement secondResultElement = webDriverWait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[2]/div[1]/div[2]/div[2]/div[1]/p")));
 
-        // Extract and parse the integer values from the text
         int firstValue = Integer.parseInt(firstResultElement.getText().split(" ")[0]);
         int secondValue = Integer.parseInt(secondResultElement.getText().split(" ")[0]);
 
         System.out.println("First value: " + firstValue);
         System.out.println("Second value: " + secondValue);
 
-        // Assert that the first value is greater than or equal to the second value
         assertTrue(firstValue >= secondValue, "Results should be sorted by 'Last Updated' in descending order");
     }
 
     @Test
     public void testOrderByLastUpdated() throws InterruptedException {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
-        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Click the 'Last Updated' button
         WebElement lastUpdatedButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/button")));
         lastUpdatedButton.click();
 
-        // Select the third option from the dropdown
         WebElement dropdownOption = webDriverWait.until(
                 ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/div/input[3]")));
         dropdownOption.click();
 
-        // Wait for the sorting to take effect
         Thread.sleep(3000);
 
-        // Get the values from the specified XPath locations
         WebElement firstResultElement = webDriverWait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[1]/div[1]/div[2]/div[2]/div[1]/p")));
         WebElement secondResultElement = webDriverWait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[2]/div[1]/div[2]/div[2]/div[1]/p")));
 
-        // Extract and parse the integer values from the text
         int firstValue = Integer.parseInt(firstResultElement.getText().split(" ")[0]);
         int secondValue = Integer.parseInt(secondResultElement.getText().split(" ")[0]);
 
         System.out.println("First value: " + firstValue);
         System.out.println("Second value: " + secondValue);
 
-        // Assert that the first value is greater than or equal to the second value
         assertTrue(firstValue >= secondValue, "Results should be sorted by 'Last Updated' in descending order");
     }
 
@@ -941,75 +917,107 @@ public class StoryGraphTests {
     }
 
     @Test
-    public void testMultiPreferences() throws InterruptedException{
+    public void testMultiPreferences() throws InterruptedException {
         login(EMAIL, PASSWORDS[0]);
         Thread.sleep(2000);
 
         webDriver.get("https://app.thestorygraph.com/preferences/edit/" + USERNAMES[0]);
-
         webDriver.manage().window().maximize();
-
         Thread.sleep(1000);
+
+        // Set Time Zone
         Select timeZone = new Select(webDriver.findElement(By.id("user_time_zone")));
         timeZone.selectByValue("Hawaii");
-
-        String timeZoneValue = "Hawaii";
-
+        String expectedTimeZone = "(GMT-10:00) Hawaii";
         Thread.sleep(1000);
+
+        // Set Language
         scrollToY(500);
         Thread.sleep(1000);
-
-
         WebElement languagesClick = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[5]/span/span[1]/span/ul"));
         languagesClick.click();
-
         WebElement arabicOption = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[text()='Arabic']")));
         arabicOption.click();
-
-        String languagesValue = "Arabic";
-
-        WebElement randomClick = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[5]/label")));
-        randomClick.click();
-
-        Thread.sleep(500);
-
+        String expectedLanguage = "Arabic";
         Thread.sleep(1000);
+
+        // Set Friends Dropdown
         scrollToY(1600);
         Thread.sleep(1000);
-
         WebElement friendsDropdown = webDriver.findElement(By.id("user_follow_setting"));
         friendsDropdown.click();
-
         WebElement friendsSelect = webDriver.findElement(By.xpath("//*[@id=\"user_friends_setting\"]/option[3]"));
         friendsSelect.click();
+        String expectedFriendsSetting = "Friends";
 
-        String friendsValue = "Anybody";
-
+        // Set Buddy Reads
         Select buddyReads = new Select(webDriver.findElement(By.id("user_buddy_reads_setting")));
         buddyReads.selectByValue("anybody");
+        String expectedBuddyReads = "Anybody";
 
-        String buddyReadsValue = "Anybody";
-
+        // Set Owned Books Visibility
         scrollToY(2200);
-
         Select ownedBooks = new Select(webDriver.findElement(By.id("user_owned_books_visibility_setting")));
         ownedBooks.selectByValue("friends_and_following");
+        String expectedOwnedBooksVisibility = "Friends & People I follow";
 
-        String ownedBooksValue = "Friends & People I follow";
-
+        // Save Preferences
         Thread.sleep(1000);
         WebElement updateButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[2]/button"));
         updateButton.click();
 
+        // Reload the page and verify the values
         webDriver.get("https://app.thestorygraph.com/preferences/edit/" + USERNAMES[0]);
-        assertTrue(timeZoneValue.contains("Hawaii"));
+        Thread.sleep(2000);
+
+        // Verify Time Zone
+        Select actualTimeZone = new Select(webDriver.findElement(By.id("user_time_zone")));
+        String actualTimeZoneValue = actualTimeZone.getFirstSelectedOption().getText();
+        assertEquals(expectedTimeZone, actualTimeZoneValue);
+
+        // Verify Language
         scrollToY(500);
-        assertTrue(languagesValue.contains("Arabic"));
+        WebElement selectedLanguage = webDriver.findElement(By.xpath("//li[text()='Arabic']"));
+        assertNotNull(selectedLanguage);
+
+        // Verify Friends Dropdown
         scrollToY(1600);
-        assertTrue(friendsValue.contains("Anybody"));
-        assertTrue(buddyReadsValue.contains("Anybody"));
+        Select actualFriendsSetting = new Select(webDriver.findElement(By.id("user_follow_setting")));
+        String actualFriendsValue = actualFriendsSetting.getFirstSelectedOption().getText();
+        assertEquals(expectedFriendsSetting, actualFriendsValue);
+
+        // Verify Buddy Reads
+        Select actualBuddyReads = new Select(webDriver.findElement(By.id("user_buddy_reads_setting")));
+        String actualBuddyReadsValue = actualBuddyReads.getFirstSelectedOption().getText();
+        assertEquals(expectedBuddyReads, actualBuddyReadsValue);
+
+        // Verify Owned Books Visibility
         scrollToY(2200);
-        assertTrue(ownedBooksValue.contains("Friends & People I follow"));
+        Select actualOwnedBooksVisibility = new Select(webDriver.findElement(By.id("user_owned_books_visibility_setting")));
+        String actualOwnedBooksValue = actualOwnedBooksVisibility.getFirstSelectedOption().getText();
+        assertEquals(expectedOwnedBooksVisibility, actualOwnedBooksValue);
+    }
+
+    @Test
+    public void testModeChange() throws InterruptedException{
+
+        login("multipurpose.beca@gmail.com", PASSWORDS[0]);
+        Thread.sleep(2000);
+
+        webDriver.get("https://app.thestorygraph.com/preferences/edit/"+USERNAMES[0]);
+        Select mode = new Select(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[4]/select")));
+        mode.selectByVisibleText(MODES[1]);
+        webDriver.manage().window().maximize();
+        Thread.sleep(1000);
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 1800)");
+        Thread.sleep(2000);
+        WebElement update = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[2]/button"));
+        update.click();
+        Thread.sleep(1000);
+        webDriver.get("https://app.thestorygraph.com/preferences/edit/"+USERNAMES[0]);
+        Thread.sleep(1000);
+        Select newMode = new Select(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[4]/select")));
+        assertEquals(MODES[1], newMode.getFirstSelectedOption().getText());
     }
 
     @Test
