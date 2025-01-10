@@ -6,12 +6,14 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.openqa.selenium.By.className;
@@ -55,7 +57,6 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/users/sign_in");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
 
-        // Verify login page elements
         WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='user_email']")));
         WebElement passwordField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='user_password']")));
         WebElement loginButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='sign-in-btn']")));
@@ -64,7 +65,6 @@ public class StoryGraphTests {
         assertTrue(passwordField.isDisplayed(), "Password field should be visible on the login page.");
         assertTrue(loginButton.isDisplayed(), "Login button should be visible on the login page.");
 
-        // Perform login with test credentials
         emailField.sendKeys(email);
         passwordField.sendKeys(password);
         loginButton.click();
@@ -80,7 +80,6 @@ public class StoryGraphTests {
     }
 
     public void logout() {
-        // Navigate to the logout button
         webDriver.get("https://app.thestorygraph.com/");
         WebElement logoutMenuButton = new WebDriverWait(webDriver, Duration.ofSeconds(10))
                 .until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/nav/div[1]/div/div[3]/button/div")));
@@ -105,7 +104,6 @@ public class StoryGraphTests {
             yearDropdown.click();
             new Select(yearDropdown).selectByValue(year);
 
-            // Submit form
             webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[4]/div/div[3]/div/div[1]/div[1]/div[2]/form/input[5]"))).click();
         } catch (Exception e) {
             System.out.println("Error selecting date: " + e.getMessage());
@@ -125,7 +123,7 @@ public class StoryGraphTests {
         Thread.sleep(1000);
 
         List<WebElement> buttons = webDriver.findElements(By.xpath("//button[@class='btn-dropdown expand-dropdown-button']"));
-        WebElement secondButton = buttons.get(1); // Assume the second button is always required
+        WebElement secondButton = buttons.get(1);
         secondButton.click();
         Thread.sleep(1000);
 
@@ -189,7 +187,6 @@ public class StoryGraphTests {
 
     @Test
     public void testLogout() {
-        // Ensure we are logged in before attempting logout
         login(EMAIL, PASSWORDS[0]);
 
         logout();
@@ -202,14 +199,11 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/users/sign_in");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
 
-        // Click "Don't have an account"
         WebElement signUpLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/div[1]/div/a")));
         signUpLink.click();
 
-        // Wait for the sign-up page to load
         wait.until(ExpectedConditions.urlToBe("https://app.thestorygraph.com/users/sign_up"));
 
-        // Fill in the sign-up form
         WebElement emailField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='user_email']")));
         WebElement emailConfirmationField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='user_email_confirmation']")));
         WebElement usernameField = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id='user_username']")));
@@ -223,7 +217,6 @@ public class StoryGraphTests {
         passwordField.sendKeys(password);
         passwordConfirmationField.sendKeys(password);
 
-        // Submit the sign-up form
         signUpButton.click();
     }
 
@@ -236,35 +229,27 @@ public class StoryGraphTests {
     public void testSignUp() throws InterruptedException {
         signUp(EMAIL, EMAIL, USERNAMES[0], PASSWORDS[0]);
 
-        // Wait for redirection to Goodreads import page
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.urlToBe("https://app.thestorygraph.com/import-goodreads-0"));
 
-        // Click "No, thanks" button
         WebElement noThanksButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[5]/span/a[2]/button")));
         noThanksButton.click();
 
-        // Wait for redirection to community preferences page
         wait.until(ExpectedConditions.urlToBe("https://app.thestorygraph.com/onboarding-community-preferences"));
 
         scrollToY(200);
         Thread.sleep(1000);
 
-        // Click "Save" button
         WebElement saveButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/div/div[2]/button/span[1]")));
         saveButton.click();
 
-        // Wait for redirection to audio preferences page
         wait.until(ExpectedConditions.urlToBe("https://app.thestorygraph.com/onboarding-audio-preferences-0"));
 
-        // Click "No" button
         WebElement noButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[4]/span/a[2]/button")));
         noButton.click();
 
-        // Wait for redirection to launch pad page
         wait.until(ExpectedConditions.urlToBe("https://app.thestorygraph.com/onboarding-launch-pad"));
 
-        // Verify the final URL to ensure the process is complete
         String finalUrl = webDriver.getCurrentUrl();
         assertEquals("https://app.thestorygraph.com/onboarding-launch-pad", finalUrl, "User should be redirected to the launch pad after completing onboarding.");
     }
@@ -331,7 +316,6 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(2));
 
-        // Expand Filter All Books Section
         WebElement filterButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
         filterButton.click();
         Thread.sleep(1000);
@@ -359,16 +343,15 @@ public class StoryGraphTests {
         scrollToY(1200);
         Thread.sleep(1000);
 
-        // Verify filtering (example: check if the results contain the selected moods)
         List<WebElement> filteredResults = webDriverWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[1]/div[1]/div[2]/div[2]/div[1]/div[3]/div[1]")));
 
         boolean foundMood = false;
 
         for (WebElement moodElement : filteredResults) {
-            String moodText = moodElement.getText().toLowerCase(); // Get the text and convert to lowercase
+            String moodText = moodElement.getText().toLowerCase();
             if (moodText.contains("adventurous") || moodText.contains("dark")) {
                 foundMood = true;
-                break; // Exit the loop early if any matching mood is found
+                break;
             }
         }
         assertTrue(foundMood, "Expected mood 'adventurous' or 'dark' not found.");
@@ -376,26 +359,23 @@ public class StoryGraphTests {
 
     @Test
     public void testFilterByPace() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(2));
 
-        // Expand Filter All Books Section
         WebElement filterButton = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
         filterButton.click();
         Thread.sleep(1000);
 
-        // Select pace 'medium'
         WebElement paceSelectMedium = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("pace_medium")));
         paceSelectMedium.click();
 
-        // Select pace 'fast'
         WebElement paceSelectFast = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("pace_fast")));
         paceSelectFast.click();
 
         scrollToY(300);
         Thread.sleep(1000);
 
-        // Click the apply filter button
         WebElement filterButtonApply = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[3]/div[5]/div[2]/input")));
         filterButtonApply.click();
 
@@ -404,16 +384,15 @@ public class StoryGraphTests {
         scrollToY(1200);
         Thread.sleep(1000);
 
-        // Verify filtering (example: check if the results contain the selected paces)
         List<WebElement> filteredResults = webDriverWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[1]/div[1]/div[2]/div[2]/div[1]/div[3]/div[1]")));
 
         boolean foundPace = false;
 
         for (WebElement paceElement : filteredResults) {
-            String paceText = paceElement.getText().toLowerCase(); // Get the text and convert to lowercase
+            String paceText = paceElement.getText().toLowerCase();
             if (paceText.contains("medium-paced") || paceText.contains("fast-paced")) {
                 foundPace = true;
-                break; // Exit the loop early if any matching pace is found
+                break;
             }
         }
 
@@ -425,7 +404,6 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Expand Filter All Books Section
         WebElement filterButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
         filterButton.click();
         Thread.sleep(1000);
@@ -433,16 +411,13 @@ public class StoryGraphTests {
         scrollToY(500);
         Thread.sleep(1000);
 
-        // Locate the dropdown list (ul) and select "Science Fiction"
         WebElement genreDropdown = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[3]/span[1]/span[1]/span/ul")));
-        genreDropdown.click(); // Open the dropdown
+        genreDropdown.click();
 
-        // Select the "Science Fiction" option
         WebElement sciFiOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[text()='Science Fiction']")));
         sciFiOption.click();
         Thread.sleep(500);
 
-        // Select the "Fantasy" option
         WebElement fantasyOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[text()='Fantasy']")));
         fantasyOption.click();
         Thread.sleep(500);
@@ -454,25 +429,22 @@ public class StoryGraphTests {
 
         Thread.sleep(1000);
 
-        // Apply the filter
         WebElement filterButtonApply = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[3]/div[5]/div[2]/input")));
         filterButtonApply.click();
-
 
         Thread.sleep(3000);
 
         scrollToY(1200);
 
-        // Verify filtering results
         List<WebElement> filteredResults = webDriverWait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[1]/div[1]/div[2]/div[2]/div[1]/div[3]/div[1]")));
 
         boolean foundGenre = false;
 
         for (WebElement book : filteredResults) {
-            String genresText = book.getText().toLowerCase(); // Get the text and convert to lowercase
+            String genresText = book.getText().toLowerCase();
             if (genresText.contains("science fiction") || genresText.contains("fantasy")) {
                 foundGenre = true;
-                break; // Exit the loop early if any matching genre is found
+                break;
             }
         }
         assertTrue(foundGenre, "Expected genre 'Science Fiction' or 'Fantasy' not found.");
@@ -560,129 +532,134 @@ public class StoryGraphTests {
     }
 
     @Test
-    public void testCompareDatesFromLatestFirst() throws InterruptedException {
+    public void testCompareDatesFromLatestFirstFantsyOption() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
         webDriver.get("https://app.thestorygraph.com/browse?sort_order=Last+updated");
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
-        // Expand Filter All Books Section
-        WebElement filterButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[2]/span")));
+        webDriver.manage().window().maximize();
+
+        Thread.sleep(1000);
+
+        // Wait until the filter button is clickable by locating it using a CSS selector
+        WebElement filterButton = wait.until(ExpectedConditions.elementToBeClickable(
+                By.cssSelector("span.font-semibold.align-middle")
+        ));
+
+        // Perform the click action on the filter button
         filterButton.click();
+
         Thread.sleep(1000);
 
         scrollToY(500);
         Thread.sleep(1000);
 
-        // Locate the dropdown list (ul)
-        WebElement genreDropdown = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[3]/span[1]/span[1]/span/ul")));
-        genreDropdown.click(); // Open the dropdown
+        WebElement searchField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.cssSelector("input.select2-search__field")
+        ));
+        searchField.sendKeys("Fantasy"); // Replace 'YourGenre' with the desired genre
 
-        // Select the "Fantasy" option
+        /*WebElement genreDropdown = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[3]/span[1]/span[1]/span/ul")));
+        genreDropdown.click();
+
         WebElement fantasyOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[text()='Fantasy']")));
-        fantasyOption.click();
+        fantasyOption.click();*/
         Thread.sleep(500);
 
-        WebElement randomClick = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]")));
-        randomClick.click();
+        WebElement randomClickButton = webDriver.findElement(By.cssSelector("p.font-semibold.mt-5.mb-3"));
+        randomClickButton.click();
+
 
         scrollToY(800);
 
         Thread.sleep(1000);
 
-        // Apply the filter
-        WebElement filterButtonApply = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[1]/div[3]/div[5]/div[2]/input")));
+        WebElement filterButtonApply = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("input.filter-btn.primary-btn[value='Filter']")));
         filterButtonApply.click();
 
         Thread.sleep(3000);
 
         scrollToY(1100);
 
-        // Click the 'Last Updated' button
         WebElement lastUpdatedButton = webDriverWait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/button")));
+                ExpectedConditions.elementToBeClickable(By.cssSelector("button.btn-dropdown.expand-dropdown-button"))
+        );
         lastUpdatedButton.click();
 
-        // Select the fifth option from the dropdown
         WebElement dropdownOption = webDriverWait.until(
-                ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/div/form/div[2]/div/div/input[5]")));
+                ExpectedConditions.elementToBeClickable(By.cssSelector("input.btn-dropdown.filter-btn.sort-button[value='Pub Date: Latest first']"))
+        );
         dropdownOption.click();
 
-        // Wait for 3 seconds
         Thread.sleep(3000);
 
-        scrollToY(1300);
+        scrollToY(1350);
 
         Thread.sleep(3000);
 
-        // Click on the first publication Date reveal
-        WebElement firstPublicationDateReveal = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[1]/div[1]/div[2]/div[2]/div[1]/p/span")));
+        WebElement firstPublicationDateReveal = webDriverWait.until(
+                ExpectedConditions.elementToBeClickable(
+                        By.cssSelector("span.underline.decoration-darkerGrey.cursor-pointer.hover\\:text-cyan-700")
+                )
+        );
         firstPublicationDateReveal.click();
 
-        // Wait for 1 second
         Thread.sleep(5000);
 
-        // Find the div with the class "edition-info" and wait for it to be visible
         WebElement infoDiv = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(className("edition-info")));
-        // Log out success for debugging
         System.out.println("infoDiv: " + infoDiv);
-        // The infoDiv contains <p> elements, the last of which is the publication date
-        // Find how many <p> elements are in the infoDiv and use the count for the index number
+
         int pCount = infoDiv.findElements(By.tagName("p")).size();
-        // Get the last <p> element in the infoDiv
+
         WebElement publicationDateElement = infoDiv.findElements(By.tagName("p")).get(pCount - 1);
         String dateTextFirst = publicationDateElement.getText().trim();
         String[] datePartsFirst = dateTextFirst.split(" ");
+
         int dayFirst = Integer.parseInt(datePartsFirst[2]);
         int monthFirst = getMonthAsNumber(datePartsFirst[3]);
         int yearFirst = Integer.parseInt(datePartsFirst[4]);
-        // Log out the entire text, then the individual day/month/year parts
-        System.out.println("Date text: " + dateTextFirst);
+
+        /*System.out.println("Date text: " + dateTextFirst);
         System.out.println("Day: " + dayFirst);
         System.out.println("Month: " + monthFirst);
-        System.out.println("Year: " + yearFirst);
+        System.out.println("Year: " + yearFirst);*/
 
-        // Wait for 3 seconds
         Thread.sleep(3000);
 
-        // Click on the second publication
-        WebElement secondPublicationDateReveal = webDriverWait.until(ExpectedConditions.elementToBeClickable(
-                By.xpath("/html/body/div[1]/div/main/div/div[2]/div[1]/span/div[2]/div[1]/div[2]/div[2]/div[1]/p/span")));
-        secondPublicationDateReveal.click();
-        Thread.sleep(5000); // Allow time for the edition-info div to load
+        scrollToY(1600);
 
-        //*********************************************************************************************************************************************************
+        WebElement elementContainingFirstPub = webDriverWait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), 'first pub')]"))
+        );
+
+// Scroll the element into view
+        ((JavascriptExecutor) webDriver).executeScript("arguments[0].scrollIntoView(true);", elementContainingFirstPub);
+
+// Click the element
+        elementContainingFirstPub.click();
+
+        Thread.sleep(5000);
 
         List<WebElement> infoDivs = webDriver.findElements(By.className("edition-info"));
-        WebElement infoDiv1 = infoDivs.get(2); // Assume the second button is always required
+        WebElement infoDiv1 = infoDivs.get(2);
 
-        /*// Wait until all elements with the class "edition-info" are visible
-        List<WebElement> infoDivs = webDriverWait.until(
-                ExpectedConditions.visibilityOfAllElementsLocatedBy(By.className("edition-info"))
-        );*/
-
-       /* // Find the div with the class "edition-info" and wait for it to be visible
-        WebElement infoDiv1 = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("edition-info")));
-        // Log out success for debugging
-        System.out.println("infoDiv: " + infoDiv1);*/
-        // The infoDiv contains <p> elements, the last of which is the publication date
-        // Find how many <p> elements are in the infoDiv and use the count for the index number
         int pCount1 = infoDiv1.findElements(By.tagName("p")).size();
-        // Get the last <p> element in the infoDiv
+
         WebElement publicationDateElement1 = infoDiv1.findElements(By.tagName("p")).get(pCount1 - 1);
         String dateTextSecond = publicationDateElement1.getText().trim();
         String[] datePartsSecond = dateTextSecond.split(" ");
+
         int daySecond = Integer.parseInt(datePartsSecond[2]);
         int monthSecond = getMonthAsNumber(datePartsSecond[3]);
         int yearSecond = Integer.parseInt(datePartsSecond[4]);
-        // Log out the entire text, then the individual day/month/year parts
-        System.out.println("Date text: " + dateTextSecond);
+
+        /*System.out.println("Date text: " + dateTextSecond);
         System.out.println("Day: " + daySecond);
         System.out.println("Month: " + monthSecond);
-        System.out.println("Year: " + yearSecond);
+        System.out.println("Year: " + yearSecond);*/
 
-        // Compare the two dates
         boolean isDateFirstGreater = compareDates(dayFirst, monthFirst, yearFirst, daySecond, monthSecond, yearSecond);
 
-        // Assert that the first date is greater than the second date
         assertTrue(isDateFirstGreater, "The first publication's date should be more recent than the second publication's date");
     }
 
@@ -712,7 +689,6 @@ public class StoryGraphTests {
 
     @Test
     public void testVerifyBookAddedToRead() throws InterruptedException {
-        // Perform login
         login(EMAIL, PASSWORDS[0]);
         Thread.sleep(2000);
 
@@ -720,21 +696,18 @@ public class StoryGraphTests {
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(5));
 
         scrollToY(200);
-        Thread.sleep(111000);
-        // Click the book to add it to the "To Read" list
+        Thread.sleep(1000);
+
         WebElement dropdownOption = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div/main/div/div[5]/div[1]/div[2]/div[4]/div[1]/div[1]/div/form/button")));
         dropdownOption.click();
 
-        // Navigate to the "To Read" section
         webDriver.get("https://app.thestorygraph.com/to-read/" + USERNAMES[0]);
 
-        // Wait for the "To Read" page to load
         List<WebElement> booksList = wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(
                 By.xpath("/html/body/div[1]/div/main/div/div[4]/div[1]/div[4]/div/a/button")
         ));
 
-        // Verify the book is in the list
-        String expectedBookTitle = "The Title of the Book You Clicked"; // Replace with the actual title
+        String expectedBookTitle = "The Title of the Book You Clicked";
         boolean bookFound = booksList.stream()
                 .anyMatch(book -> book.getText().equalsIgnoreCase(expectedBookTitle));
 
@@ -743,7 +716,6 @@ public class StoryGraphTests {
 
     @Test
     public void testChangeUsername() throws InterruptedException {
-        // Log in with the current username and password
         login(EMAIL, PASSWORDS[0]);
 
         webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
@@ -765,44 +737,37 @@ public class StoryGraphTests {
 
     @Test
     public void testToggleVisibility() throws InterruptedException {
-        // Perform login
         login(EMAIL, PASSWORDS[0]);
         Thread.sleep(3000);
-        // Navigate to the Edit Profile page
+
         webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
 
-        // Locate the visibility dropdown
         WebElement visibilityDropdown = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/div[6]/select"));
         Select dropdown = new Select(visibilityDropdown);
 
-        // Select 'Private' option
         dropdown.selectByVisibleText("Community");
 
-        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 300)"); // Scroll down by 500 pixels
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 300)");
 
-        // Submit the form
         WebElement saveButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/button"));
         saveButton.click();
 
-        // Wait for the changes to apply
         Thread.sleep(1000);
 
-        // Reload the page to check the new visibility
         webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
         ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 300)");
         visibilityDropdown = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/form/div[6]/select"));
         dropdown = new Select(visibilityDropdown);
 
-        // Verify the visibility has been set to 'Private'
         String selectedOption = dropdown.getFirstSelectedOption().getText();
         assertEquals("Community", selectedOption, "The visibility option was not updated correctly.");
     }
 
     @Test
     public void testChangePassword() throws InterruptedException {
-
         login(EMAIL, PASSWORDS[0]);
         Thread.sleep(3000);
+
         webDriver.get("https://app.thestorygraph.com/profile/edit/" + USERNAMES[0]);
 
         ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 600)");
@@ -844,6 +809,7 @@ public class StoryGraphTests {
     public void testBookLog() throws InterruptedException {
         login(EMAIL, PASSWORDS[0]);
         Thread.sleep(3000);
+
         addBookToReadPile("https://app.thestorygraph.com/books/e0f01a40-b8fb-472c-998d-853fadf00a67", "8", "1", "2025");
 
         Thread.sleep(3000);
@@ -925,15 +891,15 @@ public class StoryGraphTests {
         webDriver.manage().window().maximize();
         Thread.sleep(1000);
 
-        // Set Time Zone
         Select timeZone = new Select(webDriver.findElement(By.id("user_time_zone")));
         timeZone.selectByValue("Hawaii");
         String expectedTimeZone = "(GMT-10:00) Hawaii";
+
         Thread.sleep(1000);
 
-        // Set Language
         scrollToY(500);
         Thread.sleep(1000);
+
         WebElement languagesClick = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[5]/span/span[1]/span/ul"));
         languagesClick.click();
         WebElement arabicOption = webDriverWait.until(ExpectedConditions.elementToBeClickable(By.xpath("//li[text()='Arabic']")));
@@ -941,58 +907,54 @@ public class StoryGraphTests {
         String expectedLanguage = "Arabic";
         Thread.sleep(1000);
 
-        // Set Friends Dropdown
         scrollToY(1600);
         Thread.sleep(1000);
+
         WebElement friendsDropdown = webDriver.findElement(By.id("user_follow_setting"));
         friendsDropdown.click();
         WebElement friendsSelect = webDriver.findElement(By.xpath("//*[@id=\"user_friends_setting\"]/option[3]"));
         friendsSelect.click();
         String expectedFriendsSetting = "Friends";
 
-        // Set Buddy Reads
         Select buddyReads = new Select(webDriver.findElement(By.id("user_buddy_reads_setting")));
         buddyReads.selectByValue("anybody");
         String expectedBuddyReads = "Anybody";
 
-        // Set Owned Books Visibility
         scrollToY(2200);
+
         Select ownedBooks = new Select(webDriver.findElement(By.id("user_owned_books_visibility_setting")));
         ownedBooks.selectByValue("friends_and_following");
         String expectedOwnedBooksVisibility = "Friends & People I follow";
 
-        // Save Preferences
         Thread.sleep(1000);
+
         WebElement updateButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[2]/button"));
         updateButton.click();
 
-        // Reload the page and verify the values
         webDriver.get("https://app.thestorygraph.com/preferences/edit/" + USERNAMES[0]);
         Thread.sleep(2000);
 
-        // Verify Time Zone
         Select actualTimeZone = new Select(webDriver.findElement(By.id("user_time_zone")));
         String actualTimeZoneValue = actualTimeZone.getFirstSelectedOption().getText();
         assertEquals(expectedTimeZone, actualTimeZoneValue);
 
-        // Verify Language
         scrollToY(500);
+
         WebElement selectedLanguage = webDriver.findElement(By.xpath("//li[text()='Arabic']"));
         assertNotNull(selectedLanguage);
 
-        // Verify Friends Dropdown
         scrollToY(1600);
+
         Select actualFriendsSetting = new Select(webDriver.findElement(By.id("user_follow_setting")));
         String actualFriendsValue = actualFriendsSetting.getFirstSelectedOption().getText();
         assertEquals(expectedFriendsSetting, actualFriendsValue);
 
-        // Verify Buddy Reads
         Select actualBuddyReads = new Select(webDriver.findElement(By.id("user_buddy_reads_setting")));
         String actualBuddyReadsValue = actualBuddyReads.getFirstSelectedOption().getText();
         assertEquals(expectedBuddyReads, actualBuddyReadsValue);
 
-        // Verify Owned Books Visibility
         scrollToY(2200);
+
         Select actualOwnedBooksVisibility = new Select(webDriver.findElement(By.id("user_owned_books_visibility_setting")));
         String actualOwnedBooksValue = actualOwnedBooksVisibility.getFirstSelectedOption().getText();
         assertEquals(expectedOwnedBooksVisibility, actualOwnedBooksValue);
@@ -1007,17 +969,402 @@ public class StoryGraphTests {
         webDriver.get("https://app.thestorygraph.com/preferences/edit/"+USERNAMES[0]);
         Select mode = new Select(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[4]/select")));
         mode.selectByVisibleText(MODES[1]);
+
         webDriver.manage().window().maximize();
+
         Thread.sleep(1000);
+
         ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 1800)");
+
         Thread.sleep(2000);
+
         WebElement update = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[2]/button"));
         update.click();
+
         Thread.sleep(1000);
+
         webDriver.get("https://app.thestorygraph.com/preferences/edit/"+USERNAMES[0]);
+
         Thread.sleep(1000);
+
         Select newMode = new Select(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/div/div[1]/div[4]/select")));
         assertEquals(MODES[1], newMode.getFirstSelectedOption().getText());
+    }
+
+    @Test
+    public void testReadingGoal() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
+
+        Thread.sleep(2000);
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/dashboard/multipurpose1");
+
+        Thread.sleep(4000);
+
+        WebElement editReadingGoalBooksButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/div[1]/div/div[1]/div/div[1]/a/button"));
+        editReadingGoalBooksButton.click();
+
+        Thread.sleep(2000);
+
+        WebElement booksToRead = webDriver.findElement(By.id("reading_goal_goal"));
+        booksToRead.clear();
+
+        WebElement booksToReadInputValue = webDriver.findElement(By.id("reading_goal_goal"));
+        booksToReadInputValue.sendKeys("30");
+
+        WebElement upadateReadingGoalButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/button"));
+        upadateReadingGoalButton.click();
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/dashboard/multipurpose1");
+        Thread.sleep(2000);
+
+        WebElement element = webDriver.findElement(By.cssSelector("p > span.font-semibold.mb-2"));
+
+        String elementText = element.getText();
+
+        String numberOnly = elementText.replaceAll("\\D+", "");
+
+        int number = Integer.parseInt(numberOnly);
+
+        int expectedNumber = 30;
+        assertEquals(expectedNumber, number, "The number of books does not match the expected value.");
+
+    }
+
+    @Test
+    public void testReadingChallengesJoinGeneral() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
+
+        Thread.sleep(2000);
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/");
+
+        Thread.sleep(4000);
+
+        WebElement readsTheWorld2025Click = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/div/div[3]/h6/a"));
+        readsTheWorld2025Click.click();
+
+        Thread.sleep(2000);
+
+        WebElement joinChallengeButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/form/button"));
+        joinChallengeButton.click();
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/dashboard/multipurpose1");
+
+        Thread.sleep(2000);
+
+        scrollToY(1000);
+
+        WebElement joinedChallenge = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/div[2]/div/div/turbo-frame/div/div/p[1]/a"));
+
+        assertEquals("The StoryGraph Reads the World 2025", joinedChallenge.getText());
+    }
+
+
+    @Test
+    public void testReadingChallengesLeaveGeneral() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
+
+        Thread.sleep(2000);
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/");
+
+        Thread.sleep(4000);
+
+        WebElement readsTheWorld2025Click = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/div/div[3]/h6/a"));
+        readsTheWorld2025Click.click();
+
+        Thread.sleep(2000);
+
+        WebElement joinChallengeButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div[1]/div[1]/div/button"));
+        joinChallengeButton.click();
+
+        Thread.sleep(1000);
+
+        WebElement svgElement = webDriver.findElement(By.cssSelector("svg.w-6"));
+        ((JavascriptExecutor) webDriver).executeScript("arguments[0].style.display='none';", svgElement);
+
+        WebElement leaveButton = webDriver.findElement(By.linkText("Leave"));
+        leaveButton.click();
+
+        Alert alert = webDriver.switchTo().alert();
+        alert.accept();
+
+        Thread.sleep(1500);
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/dashboard/multipurpose1");
+
+        Thread.sleep(2000);
+
+        scrollToY(1000);
+
+        WebElement joinedChallenge = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/div[2]/div/div/turbo-frame/div/div/p[1]/a"));
+
+        assertNotEquals("The StoryGraph Reads the World 2025", joinedChallenge.getText());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "/browse?sort_order=Last+updated, //*[@id=\"navbar\"]/div[1]/div/div[1]/div[2]/a[1]",
+            "/stats/multipurpose1?year=2025, //*[@id=\"navbar\"]/div[1]/div/div[1]/div[2]/a[2]",
+            "/reading_challenges/dashboard/multipurpose1, //*[@id=\"navbar\"]/div[1]/div/div[1]/div[2]/a[3]",
+            "/community, //*[@id=\"navbar\"]/div[1]/div/div[1]/div[2]/a[4]",
+            "/giveaways, //*[@id=\"navbar\"]/div[1]/div/div[1]/div[2]/a[5]"
+    })
+    public void testNavBar(String route, String xpath) throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
+
+        Thread.sleep(2000);
+
+        webDriver.manage().window().maximize();
+
+        WebElement button = webDriver.findElement(By.xpath(xpath));
+        button.click();
+
+        Thread.sleep(2000);
+
+        assertEquals(baseUrl + route, webDriver.getCurrentUrl());
+
+        webDriver.manage().window().minimize();
+
+        logout();
+
+        Thread.sleep(2000);
+    }
+
+    @Test
+    public void testRating() throws InterruptedException {
+
+        login(EMAIL, PASSWORDS[0]);
+        webDriver.get("https://app.thestorygraph.com/books/94aaa555-1ff2-46c0-8de6-77e86d3a7120");
+
+        WebElement addReview = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/div/div[3]/div/div[1]/div[1]/div[1]/div/a"));
+        addReview.click();
+        Thread.sleep(1000);
+
+        WebElement mood = webDriver.findElement(By.xpath("//*[@id=\"review_mood_ids_1\"]"));
+        mood.click();
+
+        WebElement medium = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/form/input[3]"));
+        medium.click();
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 500)");
+        Thread.sleep(500);
+
+        Select driven = new Select(webDriver.findElement(By.id("review_character_or_plot_driven")));
+        driven.selectByValue("A mix");
+
+        Select dev = new Select(webDriver.findElement(By.id("review_strong_character_development")));
+        dev.selectByValue("Yes");
+
+        Select lovable = new Select(webDriver.findElement(By.id("review_loveable_characters")));
+        lovable.selectByValue("Yes");
+
+        Select diverse = new Select(webDriver.findElement(By.id("review_diverse_characters")));
+        diverse.selectByValue("No");
+
+        Select flaws = new Select(webDriver.findElement(By.id("review_flawed_characters")));
+        flaws.selectByValue("It's complicated");
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 500)");
+        Thread.sleep(500);
+
+        Select stars = new Select(webDriver.findElement(By.id("stars_integer")));
+        stars.selectByValue("4");
+
+        Select partStars = new Select(webDriver.findElement(By.id("stars_decimal")));
+        partStars.selectByValue("75");
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 500)");
+        Thread.sleep(500);
+
+        WebElement submit = webDriver.findElement(By.xpath("//*[@id=\"new_review\"]/button"));
+        submit.click();
+
+        Thread.sleep(1500);
+
+        WebElement seeReview = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/div/div[2]/div[3]/div/a"));
+        seeReview.click();
+        Thread.sleep(500);
+
+        assertEquals("adventurous", webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/span[1]")).getText());
+        assertNotEquals("emotional", webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/span[1]")).getText());
+        assertTrue(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/p")).getText().contains("4.75"));
+        assertTrue(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/ul/li[1]")).getText().contains("A mix"));
+        assertTrue(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/ul/li[2]")).getText().contains("Yes"));
+        assertTrue(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/ul/li[3]")).getText().contains("Yes"));
+        assertTrue(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/ul/li[4]")).getText().contains("No"));
+        assertFalse(webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/ul/li[5]")).getText().contains("Yes"));
+
+        WebElement editButton = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/h4/a[1]"));
+        editButton.click();
+
+        Thread.sleep(500);
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 1300)");
+        Thread.sleep(500);
+
+        WebElement deleteReview = webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[4]/a"));
+        deleteReview.click();
+        Alert alert = webDriver.switchTo().alert();
+        alert.accept();
+        Thread.sleep(500);
+        assertEquals("0 reviews", webDriver.findElement(By.xpath("/html/body/div[1]/div/main/div/div[3]/h1/span[2]")).getText());
+    }
+
+    @Test
+    public void testMakeMyChallenge() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/dashboard/"+USERNAMES[0]);
+        Thread.sleep(500);
+        WebElement browse = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/div/div/div/a[1]")));
+        browse.click();
+
+        WebElement createNew = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/div/div[2]/a")));
+        createNew.click();
+
+        Thread.sleep(500);
+
+        WebElement numbers = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[3]/div/a[3]")));
+        numbers.click();
+
+        Thread.sleep(500);
+
+        WebElement title =  webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("reading_challenge_title")));
+        title.sendKeys("Read 10 classics");
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 500)");
+        Thread.sleep(500);
+
+        Select year = new Select(webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("reading_challenge_end_date_1i"))));
+        year.selectByValue("2026");
+
+        WebElement numberOfBooks = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("reading_challenge_number_of_books_required")));
+        numberOfBooks.sendKeys("10");
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 800)");
+        Thread.sleep(500);
+
+        WebElement makeChallengeLive = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.id("reading_challenge_live")));
+        makeChallengeLive.click();
+
+        WebElement saveButton = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"new_reading_challenge\"]/button")));
+        saveButton.click();
+
+        WebElement joinChallenge = webDriverWait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("button.mt-3.inline-flex.items-center.px-4.py-2.border.border-transparent.text-sm.rounded-md.shadow-sm")));
+        JavascriptExecutor js = (JavascriptExecutor) webDriver;
+        js.executeScript("arguments[0].click();", joinChallenge);
+
+        Thread.sleep(500);
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 200)");
+        Thread.sleep(1000);
+
+        assertTrue(webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[5]/turbo-frame/p[2]/span"))).getText().contains("0%"));
+
+        webDriver.navigate().to("https://app.thestorygraph.com/reading_challenges/dashboard/"+USERNAMES[0]);
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 800)");
+        Thread.sleep(500);
+
+        WebElement challengesContainer = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".reading-challenge-panes")));
+        WebElement specificChallenge = challengesContainer.findElement(By.xpath(".//div[contains(@id, 'urc_') and .//a[text()='Read 10 classics']]"));
+        WebElement booksReadElement = specificChallenge.findElement(By.cssSelector("p.mb-3"));
+        String booksReadText = booksReadElement.getText();
+        assertTrue(booksReadText.contains("0 books read out of 10"));
+    }
+
+    @Test
+    public void addBookToChallenge() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
+
+        webDriver.get("https://app.thestorygraph.com/books/d4bee89f-3fdd-4dd0-8d77-4316bed132e7");
+
+        WebElement addChallenge = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[4]/div/div[3]/div/div[2]/a")));
+        addChallenge.click();
+
+        WebElement challengeCheckbox = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//form[.//label[contains(text(), 'Read 10 classics')]]//input[@type='checkbox']")));
+        challengeCheckbox.click();
+
+        // Verify the confirmation message for the "Read 10 classics" challenge
+        assertTrue(webDriverWait.until(ExpectedConditions.visibilityOfElementLocated
+                        (By.xpath("//div[.//label[contains(text(), 'Read 10 classics')]]/following-sibling::div[@id[contains(., 'confirmation_message')]]/span")))
+                .getText().contains("Saved!"));
+
+        addBookToReadPile("https://app.thestorygraph.com/books/d4bee89f-3fdd-4dd0-8d77-4316bed132e7", "10", "1", "2025");
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/dashboard/"+USERNAMES[0]);
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 600)");
+        Thread.sleep(500);
+
+        WebElement challengesContainer = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".reading-challenge-panes")));
+        WebElement specificChallenge = challengesContainer.findElement(By.xpath(".//div[contains(@id, 'urc_') and .//a[text()='Read 10 classics']]"));
+        WebElement booksReadElement = specificChallenge.findElement(By.cssSelector("p.mb-3"));
+        String booksReadText = booksReadElement.getText();
+        assertFalse(booksReadText.contains("0 books read out of 10"));
+    }
+
+    @Test
+    public void testArchiveChallenge() throws InterruptedException {
+
+        login(EMAIL, PASSWORDS[0]);
+        Thread.sleep(500);
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/dashboard/"+USERNAMES[0]);
+
+        WebElement archive = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//p[a[contains(text(), 'Read 10 classics')]]/following-sibling::form/button")));
+        JavascriptExecutor js = (JavascriptExecutor) webDriver;
+        ((JavascriptExecutor) js).executeScript("arguments[0].scrollIntoView(true);", archive);
+        ((JavascriptExecutor) js).executeScript("arguments[0].click();", archive);
+
+        Alert alert = webDriver.switchTo().alert();
+        alert.accept();
+
+        Thread.sleep(2000);
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/archive/"+USERNAMES[0]);
+
+        Thread.sleep(500);
+
+        String challengeText = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(),'Read 10 classics')]"))).getText();
+        System.out.println(challengeText);
+        assertNotNull(challengeText, "Challenge 'Read 10 classics' not found!");
+    }
+
+    @Test
+    public void deleteChallenge() throws InterruptedException {
+        login(EMAIL, PASSWORDS[0]);
+        Thread.sleep(1000);
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/archive/"+USERNAMES[0]);
+
+        Thread.sleep(2000);
+        WebElement clickChallenge = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//a[contains(text(),'Read 10 classics')]")));
+        clickChallenge.click();
+        Thread.sleep(1000);
+
+        WebElement editChallenge = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.className("edit-reading-challenge-link")));
+        editChallenge.click();
+        Thread.sleep(1000);
+
+        ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 800)");
+        Thread.sleep(2000);
+
+        WebElement deleteChallenge = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/div[1]/div/main/div/div[4]/a")));
+        deleteChallenge.click();
+
+        Alert alert1 = webDriver.switchTo().alert();
+        alert1.accept();
+
+        webDriver.get("https://app.thestorygraph.com/reading_challenges/archive/"+USERNAMES[0]);
+        webDriver.navigate().refresh();
+
+        Thread.sleep(2000);
+
+        try {
+            WebElement noChallengesMessage = webDriverWait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), \"There's nothing here yet!\")]")));
+            assertEquals("There's nothing here yet!", noChallengesMessage.getText());
+        } catch (NoSuchElementException e) {
+            System.out.println("No challenge message found.");
+        }
     }
 
     @Test
@@ -1030,7 +1377,6 @@ public class StoryGraphTests {
     @ParameterizedTest
     @CsvSource({"/reading_challenges/dashboard/user", "/profile/user", "/notifications", "/profile/edit/user", "/preferences/edit/user"})
     public void testProtectedRoutes(String protectedRoute) {
-        // Protected route
         webDriver.get(baseUrl + protectedRoute);
         String currentUrl = webDriver.getCurrentUrl();
         assertEquals("https://app.thestorygraph.com/users/sign_in", currentUrl, "Guest should be redirected to the login page");
