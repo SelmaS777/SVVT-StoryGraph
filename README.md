@@ -6,4 +6,5 @@ This project was conducted as part of a Software Verification, Validation & Test
 Our goal was to evaluate the software’s correctness, identify potential defects, and suggest improvements through rigorous testing methodologies.
 
 We applied various software testing techniques, including:Unit Testing, Integration Testing, System Testing, Usability Testing, Performance Testing.
-Testing Frameworks: Selenium.
+
+Testing Framework: Selenium.
