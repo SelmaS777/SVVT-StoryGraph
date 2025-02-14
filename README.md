@@ -6,6 +6,7 @@ This project was conducted as part of a Software Verification, Validation & Test
 
 Our goal was to evaluate the software’s correctness, identify potential defects, and suggest improvements through rigorous testing methodologies.
 
+
 **🛠️ Technologies Used**
 
 We applied various software testing techniques, including: 
@@ -16,6 +17,7 @@ We applied various software testing techniques, including:
 - Performance Testing.
 
 Testing Framework: Selenium.
+
 
 **🤝 Team**
 
